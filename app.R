@@ -1,4 +1,5 @@
 library(tidyverse)
+library(explore)
 library(tidydice)
 library(shiny)
 library(colourpicker)
@@ -43,6 +44,24 @@ ui <- fluidPage(
       
     tabPanel("Roll", 
             plotOutput("rollPlot")
+    ),
+    
+    tabPanel("Repeat",
+             
+      sidebarLayout(
+        sidebarPanel(
+          width = 3, 
+                 
+          radioButtons("rounds", "Repeat", 
+                       c("100" = "100", "1 000" = "1000", "10 000" = "10000", " 100 000" = 100000), 
+                       inline = FALSE,
+                       width = NULL)
+        ),
+        
+        mainPanel(
+          plotOutput("repeatPlot")
+        )
+      ) #sidebarPanel
     ),
 
     tabPanel("Check",
@@ -125,6 +144,34 @@ server <- function(input, output, session) {
     session$sendCustomMessage(type = 'testmessage',
                               message = 'Roll It!')
   })  
+  
+  output$repeatPlot <- renderPlot({
+    
+    data <- roll_dice(60, rounds = as.numeric(input$rounds), agg = TRUE)
+
+    cheat <- input$cheat
+    
+    if (input$cheat > 0) {
+      cheat <- input$cheat
+      prob_six <- 1/6 + 1/6*cheat/10
+      prob <- c(rep((1 - prob_six)/5, 5), prob_six)
+      data <- roll_dice(60, rounds = as.numeric(input$rounds), agg = TRUE, prob = prob)
+    } else {
+      data <- roll_dice(60, rounds = as.numeric(input$rounds), agg = TRUE)
+    }
+    
+        
+    data %>% 
+      filter(success <= 25) %>%
+      explore::explore_bar(
+        success, 
+        numeric = TRUE,
+        title = paste("Success 6 x 10 dice, repeated", 
+                      format(as.numeric(input$rounds), big.mark = " ", scientific = FALSE), 
+                      "times")                   
+      )
+      
+  })
   
   output$checkPlot <- renderPlot({
     
