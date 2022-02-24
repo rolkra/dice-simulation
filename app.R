@@ -26,7 +26,7 @@ ui <- fluidPage(
           sidebarPanel(
             width = 3, 
             
-            colourInput("color_fill", "Fill:", value = "grey"),
+            colourInput("color_fill", "Fill:", value = "#88ABD1"),
             colourInput("color_success", "Fill Success:", value = "#123456"),
             colourInput("color_point", "Points:", value = "white"),
             selectInput("color_line", "Line:", colors, selected = "white"),
@@ -166,7 +166,7 @@ server <- function(input, output, session) {
       explore::explore_bar(
         success, 
         numeric = TRUE,
-        title = paste("Success 6 x 10 dice, repeated", 
+        title = paste("Success 60 dice, repeated", 
                       format(as.numeric(input$rounds), big.mark = " ", scientific = FALSE), 
                       "times")                   
       )
@@ -183,7 +183,8 @@ server <- function(input, output, session) {
     binom_dice(times = 60) %>% 
     plot_binom(
       highlight = seq(input$six_check, 60),
-      title = "Binomial Distribution of 10 x 6 fair dice",
+      title = "Binomial Distribution of 60 fair dice",
+      color = "lightgrey",
       color_highlight = color_success)
     
   })
